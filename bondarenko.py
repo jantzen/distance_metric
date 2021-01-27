@@ -3,30 +3,6 @@ import matplotlib.pyplot as plt
 from ddeint import ddeint
 import pdb
 
-# From ddeint documentation:
-#def model(Y, t):
-#    return -Y(t - 3 * cos(Y(t)) ** 2)
-#
-#
-#def values_before_zero(t):
-#    return 1
-#
-#
-#tt = linspace(0, 30, 2000)
-#yy = ddeint(model, values_before_zero, tt)
-
-#####
-
-#def model(Y, t, d):
-#    x, y = Y(t)
-#    xd, yd = Y(t - d)
-#    return array([0.5 * x * (1 - yd), -0.5 * y * (1 - xd)])
-#
-#
-#g = lambda t: array([1, 2])
-#tt = linspace(2, 30, 20000)
-#yy = ddeint(model, g, tt, fargs=(d,))
-
 
 def initials(t, M):
     if t == 0.:

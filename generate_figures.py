@@ -37,8 +37,8 @@ axs[2,0].set(xlabel='scale factor', ylabel='dynamical distance', title='(e)')
 
 # (f) Same carrying capacity, more 2nd order
 data = np.loadtxt('./data/test_same_cap_more_2nd_order_noisy')
-axs[2,1].plot(data[:,0], data[:,1], 'kx')
-axs[2,1].set(xlabel='scale factor', ylabel='dynamical distance', title='(f)')
+axs[2,1].plot(np.log10(data[:,0]), data[:,1], 'kx')
+axs[2,1].set(xlabel='log(omega)', ylabel='dynamical distance', title='(f)')
 
 # (g) Chaos
 data1 = np.loadtxt('./data/test_into_chaos_1')

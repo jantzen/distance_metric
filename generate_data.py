@@ -193,7 +193,7 @@ def test_same_cap_more_2nd_order(data_dir="./data/"):
     dists = []
     dists_noisy = []
     lens = []
-    f = np.linspace(1., 5., 20)
+    f = np.linspace(0., 3., 20)
     for x in trange(20):
         n = np.power(10, f[x])
         lens.append(n)
@@ -205,18 +205,24 @@ def test_same_cap_more_2nd_order(data_dir="./data/"):
                        range_cover=False)
         data2 = simData2OD([params2], 10., 100, no_overlay,
                        range_cover=False)
-        # save only the population variables, not the derivatives
-        data1[0][0] = data1[0][0][:,:2]
-        data1[0][1] = data1[0][1][:,:2]
-        data2[0][0] = data2[0][0][:,:2]
-        data2[0][1] = data2[0][1][:,:2]
         data1_noisy = [[[],[]]]
         data2_noisy = [[[],[]]]
-        scale = 0.05 * params1[1][0]
-        data1_noisy[0][0] = data1[0][0] + np.random.normal(loc=0., scale=scale, size=data1[0][0].shape)
-        data2_noisy[0][0] = data2[0][0] + np.random.normal(loc=0., scale=scale, size=data1[0][0].shape)
-        data1_noisy[0][1] = data1[0][1] + np.random.normal(loc=0., scale=scale, size=data1[0][1].shape)
-        data2_noisy[0][1] = data2[0][1] + np.random.normal(loc=0., scale=scale, size=data1[0][1].shape)
+        tmp = np.concatenate([data1[0][0][:,2:], data1[0][1][:,2:], data2[0][0][:,2:], data2[0][1][:,2:]])
+        size = data1[0][0][:,:2].shape
+        pop_scale = 0.05 * params1[1][0]
+        deriv_scale = 0.05 * np.abs(np.max(tmp) - np.min(tmp))
+        d10 = data1[0][0][:,:2] + np.random.normal(loc=0., scale=pop_scale, size=size)
+        d11 = data1[0][0][:,2:] + np.random.normal(loc=0., scale=deriv_scale, size=size)
+        data1_noisy[0][0] = np.concatenate([d10, d11], axis=1)
+        d20 = data2[0][0][:,:2] + np.random.normal(loc=0., scale=pop_scale, size=size)
+        d21 = data2[0][0][:,2:] + np.random.normal(loc=0., scale=deriv_scale, size=size)
+        data2_noisy[0][0] = np.concatenate([d20, d21], axis=1)
+        d10 = data1[0][1][:,:2] + np.random.normal(loc=0., scale=pop_scale, size=size)
+        d11 = data1[0][1][:,2:] + np.random.normal(loc=0., scale=deriv_scale, size=size)
+        data1_noisy[0][1] = np.concatenate([d10, d11], axis=1)
+        d20 = data2[0][1][:,:2] + np.random.normal(loc=0., scale=pop_scale, size=size)
+        d21 = data2[0][1][:,2:] + np.random.normal(loc=0., scale=deriv_scale, size=size)
+        data2_noisy[0][1] = np.concatenate([d20, d21], axis=1)
         dist = pair_dist(data1, data2)
         dist_noisy = pair_dist(data1_noisy, data2_noisy)
         dists.append(dist)
@@ -317,7 +323,7 @@ def test_into_chaos(data_dir="./data/"):
     dists2_noisy = []
     dists3_noisy = []
     lens = []
-    points = 101
+    points = 51
     f = np.linspace(0.95, 1.05, points)
     for x in trange(points):
         beta = f[x]
@@ -338,11 +344,11 @@ def test_into_chaos(data_dir="./data/"):
         data2 = simData([params2], 25., 1000, no_overlay, range_cover=False)
         data3 = simData([params3], 25., 1000, no_overlay, range_cover=False)
         data4 = simData([params4], 25., 1000, no_overlay, range_cover=False)
-#            # np.save(data_path, data)
         data1_noisy = [[[],[]]]
         data2_noisy = [[[],[]]]
         data3_noisy = [[[],[]]]
         data4_noisy = [[[],[]]]
+        # add noise to all four population time series (there are 4 species in the chaotic systems)
         scale = 0.05 
         data1_noisy[0][0] = data1[0][0] + np.random.normal(loc=0., scale=scale, size=data1[0][0].shape)
         data2_noisy[0][0] = data2[0][0] + np.random.normal(loc=0., scale=scale, size=data1[0][0].shape)
@@ -371,36 +377,22 @@ def test_into_chaos(data_dir="./data/"):
     dists1 = np.array(dists1).reshape(-1,1)
     dists1_noisy = np.array(dists1_noisy).reshape(-1,1)
     data1 = np.concatenate([lens, dists1], axis=1)
-    data1_noisy = np.concatenate([lens, dists_noisy], axis=1)
-    np.savetxt(join(data_dir, 'test_into_chaos_1'), data)
-    np.savetxt(join(data_dir, 'test_into_chaos_noisy_1'), data_noisy)
+    data1_noisy = np.concatenate([lens, dists1_noisy], axis=1)
+    np.savetxt(join(data_dir, 'test_into_chaos_1'), data1)
+    np.savetxt(join(data_dir, 'test_into_chaos_noisy_1'), data1_noisy)
     dists2 = np.array(dists2).reshape(-1,1)
     dists2_noisy = np.array(dists2_noisy).reshape(-1,1)
     data2 = np.concatenate([lens, dists2], axis=1)
-    data2_noisy = np.concatenate([lens, dists_noisy], axis=1)
-    np.savetxt(join(data_dir, 'test_into_chaos_2'), data)
-    np.savetxt(join(data_dir, 'test_into_chaos_noisy_2'), data_noisy)
+    data2_noisy = np.concatenate([lens, dists2_noisy], axis=1)
+    np.savetxt(join(data_dir, 'test_into_chaos_2'), data2)
+    np.savetxt(join(data_dir, 'test_into_chaos_noisy_2'), data2_noisy)
     dists3 = np.array(dists3).reshape(-1,1)
     dists3_noisy = np.array(dists3_noisy).reshape(-1,1)
     data3 = np.concatenate([lens, dists3], axis=1)
-    data3_noisy = np.concatenate([lens, dists_noisy], axis=1)
-    np.savetxt(join(data_dir, 'test_into_chaos_3'), data)
-    np.savetxt(join(data_dir, 'test_into_chaos_noisy_3'), data_noisy)
+    data3_noisy = np.concatenate([lens, dists3_noisy], axis=1)
+    np.savetxt(join(data_dir, 'test_into_chaos_3'), data3)
+    np.savetxt(join(data_dir, 'test_into_chaos_noisy_3'), data3_noisy)
 
-
-#    d1 = simData([params1], 25., 1000, no_overlay, range_cover=False)
-#    params2[0] = _r(0., 0.9)
-#    params2[2] = _A(0., 0.9)
-#    d2 = simData([params2], 25., 1000, no_overlay, range_cover=False)
-#    d3 = simData([params3], 25., 1000, no_overlay, range_cover=False)
-#    params4[0] = _r(0.2, 0.9)
-#    params4[2] = _A(0.2, 0.9)
-#    d4 = simData([params4], 25., 1000, no_overlay, range_cover=False)
-#    d5 = simData([params5], 25., 1000, no_overlay, range_cover=False)
-#    params6[0] = _r(0.1, 0.9)
-#    params6[2] = _A(0.1, 0.9)
-#    d6 = simData([params6], 25., 1000, no_overlay, range_cover=False)
-#
 #    plt.figure()
 #    for ii in range(4):
 #        plt.plot(d1[0][0][:,ii])
@@ -419,24 +411,14 @@ def test_into_chaos(data_dir="./data/"):
 #    plt.figure()
 #    for ii in range(4):
 #        plt.plot(d6[0][0][:,ii])
-#
-#    fig, ax = plt.subplots()
-#    ax.plot(lens, dists1, 'r-', label='chaotic transition relative to chaotic base')
-##    ax.plot(lens, dists3, 'r+', label='chaotic transition relative to non-chaotic base')
-#    ax.plot(lens, dists2, 'k-', label='non-chaotic variation relative to non-chaotic base, alpha=0.2')
-#    ax.plot(lens, dists3, 'b+', label='chaotic variation relative to non-chaotic base, alpha=0.2')
-#    ax.legend()
-#    ax.set(xlabel='beta', ylabel='distance',
-#           title='Two Systems with Different Interaction Term through Chaos')
-##    plt.savefig(test_name + "-long.pdf")
 
 
 
 
 if __name__ == '__main__':
     # process command line options
-#    experiments = [test_same_more_diff,test_same_cap_more_linear, test_same_cap_more_2nd_order,test_into_chaos]
-    experiments = [test_into_chaos]
+    experiments = [test_same_more_diff, test_same_cap_more_linear, test_same_cap_more_2nd_order,test_into_chaos]
+#    experiments = [test_into_chaos]
     # run experiments
     for ex in experiments:
         ex()
