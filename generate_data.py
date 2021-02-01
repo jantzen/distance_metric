@@ -393,26 +393,6 @@ def test_into_chaos(data_dir="./data/"):
     np.savetxt(join(data_dir, 'test_into_chaos_3'), data3)
     np.savetxt(join(data_dir, 'test_into_chaos_noisy_3'), data3_noisy)
 
-#    plt.figure()
-#    for ii in range(4):
-#        plt.plot(d1[0][0][:,ii])
-#    plt.figure()
-#    for ii in range(4):
-#        plt.plot(d2[0][0][:,ii])
-#    plt.figure()
-#    for ii in range(4):
-#        plt.plot(d3[0][0][:,ii])
-#    plt.figure()
-#    for ii in range(4):
-#        plt.plot(d4[0][0][:,ii])
-#    plt.figure()
-#    for ii in range(4):
-#        plt.plot(d5[0][0][:,ii])
-#    plt.figure()
-#    for ii in range(4):
-#        plt.plot(d6[0][0][:,ii])
-
-
 
 
 if __name__ == '__main__':

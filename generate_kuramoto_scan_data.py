@@ -1,3 +1,6 @@
+# file: generate_kuramoto_scan_data.py
+
+
 import pandas as pd
 import numpy as np
 import eugene as eu
@@ -7,18 +10,13 @@ import pdb
 https://towardsdatascience.com/basic-time-series-manipulation-with-pandas-4432afee64ea
 """
 
-df = pd.read_csv("./data/bond_data.csv")
-#df.set_index('time')
-timeseries = df[['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10']].to_numpy()
-#lag = 100
-lag = 900
-width = 2 * 10**5
-#frags = 4500
-frags = 5. * 10**3
-#reps = 10 
-reps = 20 
-#step_size=500
-step_size=1000
+df = pd.read_csv("./data/kuramoto_data.csv")
+timeseries = df[['x1','x2','x3','y1','y2','y3']].to_numpy()
+lag = 100
+width = int(2 * 10 **4)
+frags = 200
+reps = 10 
+step_size=100
 ds = eu.dd_scan.DiffScanner(timeseries.T, 
         step_size=step_size, lag=lag, window_width=width, steps=5)
 ds.start_scan(frags=frags,reps=reps)
@@ -32,14 +30,13 @@ results['time'] = df['time'][index:-index:step_size].values
 # choose segment
 ref_end = 3 * width + lag
 #ref_series = df['v6'].to_numpy()[:ref_end].reshape(-1,1)
-ref_series = df[['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10']].to_numpy()[:ref_end,:]
+ref_series = df[['x1','x2','x3','y1','y2','y3']].to_numpy()[:ref_end,:]
 ds_ref = eu.dd_scan.DiffScanner(ref_series.T, step_size=step_size, lag=lag, window_width=width, steps=5)
 ds_ref.start_scan(frags=frags,reps=reps)
 ref_data = ds_ref._scan[:,1]
 mu = np.mean(ref_data)
 sigma = np.std(ref_data)
-t_pos = mu + 1.5 * sigma
-#pdb.set_trace()
+t_pos = mu + 2. * sigma # sets threshold of significance
 
 # find the trigger points
 print('Finding trigger points...')
@@ -52,9 +49,5 @@ print('Crossings: {}'.format(crossings))
 # save the data
 print('Saving data...')
 results.to_csv('./data/results.csv')
-#np.savetxt('scan_data.txt', results['time','scan data'].to_numpy())
-#np.savetxt('./data/scan_data.txt', results['scan data'].to_numpy())
-#np.savetxt('rolling_ave.txt', results['time','rolling ave'].to_numpy())
-#np.savetxt('./data/rolling_ave.txt', results['rolling ave'].to_numpy())
 np.savetxt('./data/crossings.txt', crossings)
 np.savetxt('./data/t_pos.txt', [t_pos])

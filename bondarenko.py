@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from ddeint import ddeint
 import pdb
 
@@ -26,13 +25,13 @@ def nnmodel_changepoint(Y, t, tau, a, c, e, omega_e, changepoint):
     yvec_delay = Y(t - tau)
     yvec_delay = np.array(yvec_delay).reshape(-1,1)
     if changepoint is not None and t > changepoint:
-        c = 1.1 * c
+        c = 2. * c
 
     return -yvec + np.dot(a, c * np.tanh(yvec_delay)) + e * np.sin(omega_e * t)
 
 
 def bondarenko(tmax, dt, tau=10., M=10, c=11.5, e=0., omega_e=0., changepoint=None):
-    a = 4. * np.random.rand(M,M) - 2.   # matching range in Hiveyl + Protopopescu
+    a = 4. * np.random.rand(M,M) - 2.   # matching range in Hively + Protopopescu
                                         # rather than Bondarekno
     g = lambda t: initials(t, M)
 
