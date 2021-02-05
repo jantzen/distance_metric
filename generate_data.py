@@ -65,14 +65,11 @@ def setup_params(same=True, stochastic=False, sigma = [0.1, 0.1]):
 def test_same_more_diff(data_dir="./data/"):
     print("test_same_more_diff")
 
-    r1 = np.array([1., 2.])
-    r2 = r1 * 1.5
+    r = np.array([1., 2.])
 
-    k1 = np.array([100., 100.])
-    k2 = np.array([100., 100.])
+    k = np.array([100., 100.])
 
-    alpha1 = np.array([[1., 0.5], [0.7, 1.]])
-    alpha2 = alpha1
+    alpha = np.array([[1., 0.5], [0.7, 1.]])
 
     init1 = np.array([5, 5])
     init2 = init1
@@ -80,11 +77,9 @@ def test_same_more_diff(data_dir="./data/"):
     init_trans1 = np.array([8, 8])
     init_trans2 = init_trans1
 
-    params1 = [r1, k1, alpha1, init1, init_trans1]
-    params2 = [r2, k2, alpha2, init2, init_trans2]
-    params3 = [r1, k2, alpha2, init2, init_trans2]
-
-    overlay = lambda x: np.mean(x, axis=1)
+    params1 = [r, k, alpha, init1, init_trans1]
+    params2 = [r, k, alpha, init2, init_trans2]
+    params3 = [r, k, alpha, init2, init_trans2]
 
     dists = []
     dists2 = []
@@ -97,15 +92,15 @@ def test_same_more_diff(data_dir="./data/"):
         lens.append(n)
 #        data_name = "test_same_more_diff-" + str(n)
 #        data_path = join("test_data", data_name + ".npy")
-        params2[1] = k2 * n
-        params3[0] = r1 * n
+        params2[1] = k * n
+        params3[0] = r * n
         data1 = simData([params1], 15., 100, no_overlay, range_cover=False)
         data2 = simData([params2], 15., 100, no_overlay, range_cover=False)
         data3 = simData([params3], 15., 100, no_overlay, range_cover=False)
         data1_noisy = [[[],[]]]
         data2_noisy = [[[],[]]]
         data3_noisy = [[[],[]]]
-        scale = 0.05 * k1[0]
+        scale = 0.05 * k[0]
         data1_noisy[0][0] = data1[0][0] + np.random.normal(loc=0., scale=scale, size=data1[0][0].shape)
         data2_noisy[0][0] = data2[0][0] + np.random.normal(loc=0., scale=scale, size=data1[0][0].shape)
         data3_noisy[0][0] = data3[0][0] + np.random.normal(loc=0., scale=scale, size=data1[0][0].shape)
@@ -240,7 +235,7 @@ def test_same_cap_more_2nd_order(data_dir="./data/"):
 
 
 def test_into_chaos(data_dir="./data/"):
-    test_name = "test_into_chaos_interaction"
+    test_name = "test_into_chaos"
     print(test_name)
     
     R1 = np.array([1.7741, 1.0971, 1.5466, 4.4116])
@@ -319,12 +314,14 @@ def test_into_chaos(data_dir="./data/"):
     dists1 = []
     dists2 = []
     dists3 = []
+    l2norms = []
     dists1_noisy = []
     dists2_noisy = []
     dists3_noisy = []
+    l2norms_noisy = []
     lens = []
     points = 51
-    f = np.linspace(0.95, 1.05, points)
+    f = np.linspace(0.975, 1.025, points)
     for x in trange(points):
         beta = f[x]
         lens.append(beta)
@@ -362,15 +359,19 @@ def test_into_chaos(data_dir="./data/"):
         dist1 = pair_dist(data1, data2, min_len=600)
         dist2 = pair_dist(data3, data4, min_len=600)
         dist3 = pair_dist(data3, data2, min_len=600)
+        l2 = np.linalg.norm(data3[0][0] - data2[0][0], 'fro')
         dist1_noisy = pair_dist(data1_noisy, data2_noisy, min_len=600)
         dist2_noisy = pair_dist(data3_noisy, data4_noisy, min_len=600)
         dist3_noisy = pair_dist(data3_noisy, data2_noisy, min_len=600)
+        l2_noisy = np.linalg.norm(data3_noisy[0][0] - data2_noisy[0][0], 'fro')
         dists1.append(dist1)
         dists2.append(dist2)
         dists3.append(dist3)
+        l2norms.append(l2)
         dists1_noisy.append(dist1_noisy)
         dists2_noisy.append(dist2_noisy)
         dists3_noisy.append(dist3_noisy)
+        l2norms_noisy.append(l2_noisy)
 
     # convert and save the data 
     lens = np.array(lens).reshape(-1, 1)
@@ -392,6 +393,13 @@ def test_into_chaos(data_dir="./data/"):
     data3_noisy = np.concatenate([lens, dists3_noisy], axis=1)
     np.savetxt(join(data_dir, 'test_into_chaos_3'), data3)
     np.savetxt(join(data_dir, 'test_into_chaos_noisy_3'), data3_noisy)
+    l2norms = np.array(l2norms).reshape(-1,1)
+    l2norms_noisy = np.array(l2norms_noisy).reshape(-1,1)
+    l2data = np.concatenate([lens, l2norms], axis=1)
+    l2data_noisy = np.concatenate([lens, l2norms_noisy], axis=1)
+    np.savetxt(join(data_dir, 'test_into_chaos_l2'), l2data)
+    np.savetxt(join(data_dir, 'test_into_chaos_l2_noisy'), l2data_noisy)
+
 
 
 
@@ -403,4 +411,3 @@ if __name__ == '__main__':
     for ex in experiments:
         ex()
 
-    plt.show()

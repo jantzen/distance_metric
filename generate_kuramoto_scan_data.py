@@ -36,7 +36,7 @@ ds_ref.start_scan(frags=frags,reps=reps)
 ref_data = ds_ref._scan[:,1]
 mu = np.mean(ref_data)
 sigma = np.std(ref_data)
-t_pos = mu + 2. * sigma # sets threshold of significance
+t_pos = mu + 3. * sigma # sets threshold of significance
 
 # find the trigger points
 print('Finding trigger points...')
