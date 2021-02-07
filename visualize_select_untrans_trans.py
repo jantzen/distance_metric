@@ -1,74 +1,102 @@
-# file: visualize.py
+# file: visualize_select_untrans_trans.py
 
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.patches import Ellipse
 import eugene as eu
-from moment_analysis_with_tuning_and_LOO import load_data
+import pdb
 
 
-def plot_moments(data):
-    # get data range
-    ymin = 0.
-    ymax = 0.
-    for key in sorted(data.keys()):
-        lo = np.min(data[key])
-        hi = np.max(data[key])
-        if lo < ymin:
-            ymin = lo
-        if hi > ymax:
-            ymax = hi
-    plts = []
-    plts.append(plt.figure())
-    num_subplots = len(data.keys())
-    rows = round(num_subplots / 2.)
-    counter = 1
-    for key in sorted(data.keys()):
-        plt.subplot(rows, 2, counter)
-        plt.plot(data[key][0,:], 'b-')
-        plt.plot(data[key][1,:], 'g-')
-        plt.ylim([ymin, ymax])
-        plt.title(key, fontsize=48)
-        plt.legend(['3rd moment', '4th moment'], fontsize=24)
-        counter += 1
-    plts.append(plt.figure())
-    legend_txt = []
-    for key in sorted(data.keys()):
-        plt.plot(data[key][0,:], alpha=0.4)
-        legend_txt.append(key)
-    plt.legend(legend_txt, fontsize=24)
-    plt.title('All events, 3rd moment', fontsize=48)
-    plts.append(plt.figure())
-    legend_txt = []
-    for key in sorted(data.keys()):
-        plt.plot(data[key][1,:], alpha=0.4)
-        legend_txt.append(key)
-    plt.legend(legend_txt, fontsize=24)
-    plt.title('All events, 4th moment', fontsize=48)
-    return plts
+def plot_initials(data, frags, reps):
+    alpha = 0.8
+    beta = 0.1
+    fig, axs = plt.subplots(2, 1, figsize=(3,6))
+    axs[0].plot(data[0, :4000], 'k-', label=r'$x_1$')
+    axs[0].plot(data[1, :4000], 'k-.', label=r'$x_2$')
+    for ii in range(5):
+        axs[0].scatter(ii * 1000, data[0, ii * 1000], s=50, alpha=0.4, color='tab:blue', edgecolors='none')
+        axs[0].scatter(ii * 1000, data[1, ii * 1000], s=50, alpha=0.4, color='tab:blue', edgecolors='none')
+        plt.sca(axs[0])
+        plt.axvline(x=ii*1000, color='tab:blue', linestyle='--')
+    axs[0].set_ylim(-100, 100)
+#    axs[0].set_aspect('equal')
+    axs[0].set_xticks([])
+    axs[0].set_yticks([])
+    axs[0].set_xlabel('$t$')
+    axs[0].set_ylabel('$x$')
+    axs[0].legend(bbox_to_anchor=[0.5, 1.0], loc="lower center", ncol=2)
 
+    fragmented = eu.fragment_timeseries.split_timeseries([data], frags)
+    initials_x = []
+    initials_y = []
+    for fragment in fragmented[0]:
+        initials_x.append(fragment[0,0])
+        initials_y.append(fragment[1,0])
+    initials_x = np.array(initials_x)
+    initials_y = np.array(initials_y)
+    axs[1].scatter(initials_x, initials_y, s=50, alpha=0.4, edgecolors='none')
+    axs[1].set_aspect('equal')
+    size = 50
+    axs[1].set_xlim(-size, size)
+    axs[1].set_ylim(-size, size)
+    axs[1].set_xticks([])
+    axs[1].set_yticks([])
+    axs[1].set_xlabel(r'$x_1$')
+    axs[1].set_ylabel(r'$x_2$')
+    
 
-def plot_initials(data, frags, reps, colors, mu_spec):
-    plts = []
-    moments_norm_list = []
-    labels = []
-    for key in sorted(data.keys()):
-        moments_norm_list.append(data[key])
-        labels.append(key)
+    # compute and plot params used by choose_untrans_trans
+    initials = np.concatenate([initials_x.reshape(1, -1), initials_y.reshape(1, -1)], axis=0)
+    mu = np.mean(initials, axis=1).reshape(-1,1)
+    cov = np.cov(initials)
+    w = 5.
+    corner = mu - np.array([w/2., w/2.]).reshape(-1,1)
+    rect = plt.Rectangle(corner, w, w, edgecolor='black', fill=False)
+    axs[1].add_patch(rect)
 
-    fragmented = eu.fragment_timeseries.split_timeseries(moments_norm_list, frags)
-    plts.append(plt.figure())
-    for ii, event in enumerate(fragmented):
-        initials_x = []
-        initials_y = []
-        for fragment in event:
-            initials_x.append(fragment[0,0])
-            initials_y.append(fragment[1,0])
-        initials_x = np.array(initials_x)
-        initials_y = np.array(initials_y)
-        plt.scatter(initials_x, initials_y, c=colors[ii], s=200, alpha=0.4, edgecolors='none')
+    # find the largest eigenvector-eigenvalue pair
+    w, v = np.linalg.eig(cov)
+    w_max = np.sqrt(np.max(w))
+    e_vec = v[:,np.argsort(w)[-1]].reshape(-1,1)
+    sc = 10.
+    
+    axs[1].arrow(float(mu[0]), float(mu[1]), float(e_vec[0]) * sc, float(e_vec[1]) * sc,
+            facecolor='black', head_width=0.25*sc*np.linalg.norm(e_vec))
 
-    untrans, trans, error_flag = eu.initial_conditions.choose_untrans_trans(fragmented, reps, alpha=0.3,
-            beta=0.1, mu_spec=mu_spec, report=True)
+    # choose means and covariance matrix for distributions
+    mu_untrans = mu - alpha * w_max * e_vec
+    mu_trans = mu + alpha * w_max * e_vec
+    u, s_full, v = np.linalg.svd(cov)
+    s = beta * s_full
+    cov_t = np.dot(np.dot(u, np.diag(s)), v)
+
+    angle = 360. - (np.arcsin(e_vec[1] / np.linalg.norm(e_vec)) * 180. / np.pi)
+    ell = Ellipse(mu, 
+            width=np.sqrt(s_full[0]), 
+            height=np.sqrt(s_full[1]),
+            angle=angle,
+            facecolor='black',
+            alpha=0.2)
+    axs[1].add_patch(ell)
+    ell2 = Ellipse(mu_untrans, 
+            width=np.sqrt(s[0]), 
+            height=np.sqrt(s[1]),
+            angle=angle,
+            facecolor='orange',
+            alpha=0.4)
+    axs[1].add_patch(ell2)
+    ell3 = Ellipse(mu_trans, 
+            width=np.sqrt(s[0]), 
+            height=np.sqrt(s[1]),
+            angle=angle,
+            facecolor='green',
+            alpha=0.4)
+    axs[1].add_patch(ell3)
+
+    untrans, trans = eu.initial_conditions.choose_untrans_trans(fragmented, reps, 
+            alpha=alpha,
+            beta=beta)
     for ii, event in enumerate(untrans):
         initials_x = []
         initials_y = []
@@ -77,7 +105,7 @@ def plot_initials(data, frags, reps, colors, mu_spec):
             initials_y.append(fragment[1,0])
         initials_x = np.array(initials_x)
         initials_y = np.array(initials_y)
-        plt.scatter(initials_x, initials_y, c=colors[ii], s=200, alpha=1.0, marker='+')
+        axs[1].scatter(initials_x, initials_y, s=50, alpha=1.0, marker='+')
     for ii, event in enumerate(trans):
         initials_x = []
         initials_y = []
@@ -86,57 +114,26 @@ def plot_initials(data, frags, reps, colors, mu_spec):
             initials_y.append(fragment[1,0])
         initials_x = np.array(initials_x)
         initials_y = np.array(initials_y)
-        plt.scatter(initials_x, initials_y, c=colors[ii], s=200, alpha=1.0, marker='x')
+        axs[1].scatter(initials_x, initials_y, s=50, alpha=1.0, marker='x')
 
-    plt.title("Initial values for {} fragments.".format(frags), fontsize=48)
-    plt.legend(labels, fontsize=24)
+    # add the arrows from upper to lower subplot
+    axs[1].annotate('', xy=(0.296,0.43), xytext=(0.695,0.652), xycoords='figure fraction', arrowprops=dict(arrowstyle="->", color='grey', linestyle='-', linewidth=2))
+    axs[1].annotate('', xy=(0.296,0.43), xytext=(0.695,0.782), xycoords='figure fraction', arrowprops=dict(arrowstyle="->", color='grey', linestyle='-', linewidth=2))
 
-    return plts
+    plt.savefig('choose_ics.pdf', dpi=600)
+
+#    plt.title("Initial values for {} fragments.".format(frags), fontsize=48)
 
 
-def main(
-        events=['07', '08', '09', '10', '12', '13']
-        ):
-    data = dict([])
-    # plot data
-    for ev in events:
-        data['event' + ev] = np.loadtxt('./processed/moments_norm_' + ev)
-    plot_moments(data)
-    # plot initials
-    colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple',
-            'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan',
-            'salmon']
-    mu_untrans = np.array([0., 2.2]).reshape(-1,1)
-#    mu_trans = np.array([1.0, 3.7]).reshape(-1,1)
-#    mu_trans = np.array([0.45, 2.51]).reshape(-1,1)
-#    mu_spec = [mu_untrans, mu_trans]
-    mu_spec = None
-    # optimal
-#    plot_initials(data, 862, 10, colors)
-    frags = 470
+def main():
+    # load data
+    df = pd.read_csv('./data/bond_data.csv')
+#    data = df[['x1','x2','x3','y1','y2','y3']].to_numpy().T
+    data = df[['v1','v2']].to_numpy().T[:, :100000]
+    frags = 100
     reps = 10
-    plot_initials(data, frags, reps, colors, mu_spec)
-#    #suboptimal
-##    plot_initials(data, 191, 10, colors)
-#    frags = 862
-#    reps = 10
-#    plot_initials(data, frags, reps, colors)
-    # plot initials without event 11
-    del(data['event13'])
-    del(colors[2])
-    # optimal
-#    plot_initials(data, 862, 10, colors)
-    frags = 470
-    reps = 10
-    plot_initials(data, frags, reps, colors, mu_spec)
-    #suboptimal
-#    plot_initials(data, 191, 10, colors)
-#    frags = 862
-#    reps = 10
-#    plot_initials(data, frags, reps, colors)
-    plt.show()
+    plot_initials(data, frags, reps)
+
 
 if __name__ == '__main__':
-#    main()
-#    main(events=['06', '08', '11', '12', '13','14','15','16','17','18','19'])
-    main(events=['07', '08', '09', '10', '12', '13'])
+    main()

@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pdb
 
-fig, axs = plt.subplots(3, 1)
+fig, axs = plt.subplots(4, 1, figsize=(3.,6.))
+plt.tight_layout()
 
 # (a) Sample of system trajectory
 
@@ -45,5 +46,25 @@ else:
         plt.sca(axs[2])
         plt.axvline(x=x, color='r', linestyle='--')
 
+# (d) Dynamical distance scan, non-SSD
+df.plot('time', ['x1','x2','x3'],
+        color='lightgrey', legend=False, ax=axs[3]) 
+axs[3].set(title='(d)', xlabel='time', ylabel='output intensity')
+axs[3].set_ylim([-2., 2.])
+ra = axs[3].twinx()
+results = pd.read_csv('./data/results_nonssd.csv')
+results.plot('time', ['rolling ave'], ax=ra, style=['k-'], legend=False)
+t_pos = np.loadtxt('./data/t_pos_nonssd.txt')
+plt.axhline(t_pos, color='b', linestyle='-.')
+crossings = np.loadtxt('./data/crossings_nonssd.txt')
+crossings = crossings.astype('int32')
+cross_times = results['time'].iloc[crossings]
+if type(cross_times) is np.float64:
+    plt.sca(axs[3])
+    plt.axvline(x=cross_times, color='r', linestyle='--')
+else:
+    for x in cross_times.values:
+        plt.sca(axs[3])
+        plt.axvline(x=x, color='r', linestyle='--')
+
 plt.savefig('change.pdf', dpi=600)
-plt.show()
