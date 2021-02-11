@@ -14,7 +14,7 @@ def plot_initials(data, frags, reps):
     fig, axs = plt.subplots(2, 1, figsize=(3,6))
     axs[0].plot(data[0, :4000], 'k-', label=r'$x_1$')
     axs[0].plot(data[1, :4000], 'k-.', label=r'$x_2$')
-    for ii in range(5):
+    for ii in range(4):
         axs[0].scatter(ii * 1000, data[0, ii * 1000], s=50, alpha=0.4, color='tab:blue', edgecolors='none')
         axs[0].scatter(ii * 1000, data[1, ii * 1000], s=50, alpha=0.4, color='tab:blue', edgecolors='none')
         plt.sca(axs[0])

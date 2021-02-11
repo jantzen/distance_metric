@@ -130,3 +130,7 @@ dmypy.json
 
 # vim swap files
 *.swp
+
+# jantzen's additions
+/data
+*.pdf

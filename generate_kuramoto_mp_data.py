@@ -10,7 +10,7 @@ time = df['time'].to_numpy()
 ts = df[['x1','x2','x3','y1','y2','y3']]
 
 # run a matrix profile on the data
-mp = stumpy.mstump(ts, m=200)
+mp = stumpy.mstump(ts, m=2 * 10**4)
 
 # save the matrix profile and indices
 np.savetxt('./data/mp.txt', mp[0])

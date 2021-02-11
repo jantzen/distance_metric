@@ -136,7 +136,7 @@ plt.figure()
 for window_width in widths:
     for lag in lags:
         data = xy_vals.T
-        np.save('raw_data', np.concatenate([np.array(times).reshape(-1,1),
+        np.save('./data/raw_data', np.concatenate([np.array(times).reshape(-1,1),
             xy_vals], axis=1))
         diff = eu.dd_scan.DiffScanner(data, window_width=window_width, step_size=step_size, lag=lag)
         print('starting diff scan...')
