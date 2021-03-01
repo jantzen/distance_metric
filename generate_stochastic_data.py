@@ -213,50 +213,52 @@ def test_stochastic_more_noise(data_dir="./data/"):
     test_name = "test_stochastic_more_noise-"
     combined1 = Parallel(n_jobs=cpus)(
         delayed(stochastic_generation_loop_sigma)(test_name,
-                                                 [[r1, k1, alpha,
-                                                   x * sigma,
-                                                   init1, init_trans1],
-                                                  [r2, k1, alpha,
-                                                   x * sigma,
-                                                   init2, init_trans2]],
-                                                 5., 500, no_overlay,
-                                                 10, data_dir) for x in range(10))
+                                             [[r1, k1, alpha,
+                                               x * sigma,
+                                               init1, init_trans1],
+                                              [r2, k1, alpha,
+                                               x * sigma,
+                                               init2, init_trans2]],
+                                             5., 500, no_overlay,
+                                             50, data_dir) for x in range(0,100,10))
     dists1 = np.array(combined1)[:, 0]
 
     combined2 = Parallel(n_jobs=cpus)(
         delayed(stochastic_generation_loop_sigma)(test_name,
-                                                 [[r1, k1, alpha,
-                                                   x * sigma,
-                                                   init1, init_trans1],
-                                                  [r1, k2, alpha,
-                                                   x * sigma,
-                                                   init2, init_trans2]],
-                                                 5., 500, no_overlay,
-                                                 10, data_dir) for x in range(10))
+                                             [[r1, k1, alpha,
+                                               x * sigma,
+                                               init1, init_trans1],
+                                              [r1, k2, alpha,
+                                               x * sigma,
+                                               init2, init_trans2]],
+                                             5., 500, no_overlay,
+                                             50, data_dir) for x in range(0,100,10))
     dists2 = np.array(combined2)[:, 0]
 
     combined3 = Parallel(n_jobs=cpus)(
         delayed(stochastic_generation_loop_sigma)(test_name,
-                                                 [[r1, k1, alpha,
-                                                   x * sigma,
-                                                   init1, init_trans1],
-                                                  [r2, k1, alpha,
-                                                   x * sigma,
-                                                   init2, init_trans2]],
-                                                 5., 500, mean_overlay,
-                                                 10, data_dir, overlay_tag=True) for x in range(10))
+                                             [[r1, k1, alpha,
+                                               x * sigma,
+                                               init1, init_trans1],
+                                              [r2, k1, alpha,
+                                               x * sigma,
+                                               init2, init_trans2]],
+                                             5., 500, mean_overlay,
+                                             50, data_dir, 
+                                             overlay_tag=True) for x in range(0,100,10))
     dists3 = np.array(combined3)[:, 0]
 
     combined4 = Parallel(n_jobs=cpus)(
         delayed(stochastic_generation_loop_sigma)(test_name,
-                                                 [[r1, k1, alpha,
-                                                   x * sigma,
-                                                   init1, init_trans1],
-                                                  [r1, k2, alpha,
-                                                   x * sigma,
-                                                   init2, init_trans2]],
-                                                 5., 500, mean_overlay,
-                                                 10, data_dir, overlay_tag=True) for x in range(10))
+                                             [[r1, k1, alpha,
+                                               x * sigma,
+                                               init1, init_trans1],
+                                              [r1, k2, alpha,
+                                               x * sigma,
+                                               init2, init_trans2]],
+                                             5., 500, mean_overlay,
+                                             50, data_dir, 
+                                             overlay_tag=True) for x in range(0,100,10))
     dists4 = np.array(combined4)[:, 0]
     sigma = np.array(combined4)[:, 1] 
 
@@ -273,10 +275,48 @@ def test_stochastic_more_noise(data_dir="./data/"):
 #           title='Distance Between Two Stochastic Systems of the Same Kind')
  
 
+def test_brownian(data_dir="./data/"):
+    print ("test_brownian")
+
+    sigma = np.array([1., 1.])
+
+    r = np.array([0., 0.])
+
+    k = np.array([100., 100.])
+
+    alpha = np.zeros((2,2))
+
+    init1 = np.array([5., 5.])
+    init2 = init1
+
+    init_trans1 = np.array([8., 8.])
+    init_trans2 = init_trans1
+
+    cpus = max(cpu_count() - 2, 1)
+    test_name = "test_brownian-"
+    combined1 = Parallel(n_jobs=cpus)(
+        delayed(stochastic_generation_loop_sigma)(test_name,
+                                             [[r, k, alpha,
+                                               x * sigma,
+                                               init1, init_trans1],
+                                              [r, k, alpha,
+                                               x * sigma,
+                                               init2, init_trans2]],
+                                             5., 500, no_overlay,
+                                             50, data_dir) for x in range(10,20,2))
+    dists1 = np.array(combined1)[:, 0]
+    sigma = np.array(combined1)[:, 1] 
+
+
+    data = np.concatenate([sigma.reshape(1,-1), dists1.reshape(1,-1)], axis=0)
+    np.savetxt('./data/test_brownian', data)
+    plt.plot(sigma, dists1) 
 
 if __name__ == '__main__':
     # process command line options
-    experiments = [test_stochastic, test_stochastic_nonssd, test_stochastic_more_noise]
+    experiments = [test_stochastic, test_stochastic_nonssd,
+            test_stochastic_more_noise, test_brownian]
+#    experiments = [test_brownian]
 
     # run experiments
     for ex in experiments:

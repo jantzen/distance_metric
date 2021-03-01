@@ -132,11 +132,20 @@ def test_same_cap_more_linear(data_dir="./data/"):
     test_name = "test_same_cap_more_linear"
     print(test_name)
 
-    params = setup_params()
-    params1 = params[0]
-    params1.append(0.)
-    params2 = params[1]
-    params2.append(0.)
+#    params = setup_params()
+#    params1 = params[0]
+#    params1.append(0.)
+#    params2 = params[1]
+#    params2.append(0.)
+    r = np.array([1., 2.])
+    k = np.array([100., 100.])
+
+    alpha1 = np.array([[1., 0.5], [0.7, 1.]])
+    alpha2 = alpha1
+
+    params1 = [r, k, alpha, init, init_trans, 0.]
+    params2 = [r, k, alpha, init, init_trans, 0.]
+
 
     dists = []
     dists_noisy = []
