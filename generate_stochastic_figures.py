@@ -10,8 +10,8 @@ fig.tight_layout(rect=[0.05, 0.05, 0.95, 0.95], h_pad=3., w_pad=2.7)
 
 # (a) Difference in dynamical kind
 data = np.loadtxt('./data/test_stochastic')
-axs[0].plot(data[0,:], data[2,:], 'k+', label=r'varying $r_i$')
-axs[0].plot(data[0,:], data[1,:], 'kx', label=r'varying $k_i$')
+axs[0].plot(data[0,:], data[1,:], 'k+', label=r'varying $r_i$')
+axs[0].plot(data[0,:], data[2,:], 'kx', label=r'varying $k_i$')
 axs[0].legend(fontsize=7, bbox_to_anchor=(1., 1.), loc="upper left")
 axs[0].set_xlabel('scale factor', fontsize=8)
 axs[0].set_ylabel('dynamical distance', fontsize=8)
@@ -21,8 +21,8 @@ axs[0].tick_params(axis='y', labelsize=8)
 
 # (b) Difference in dynamical kind
 data = np.loadtxt('./data/test_stochastic_nonssd')
-axs[1].plot(data[0,:], data[2,:], 'k+', label=r'varying $r_i$')
-axs[1].plot(data[0,:], data[1,:], 'kx', label=r'varying $k_i$')
+axs[1].plot(data[0,:], data[1,:], 'k+', label=r'varying $r_i$')
+axs[1].plot(data[0,:], data[2,:], 'kx', label=r'varying $k_i$')
 axs[1].legend(fontsize=7, bbox_to_anchor=(1., 1.), loc="upper left")
 axs[1].set_xlabel('scale factor', fontsize=8)
 axs[1].set_ylabel('dynamical distance', fontsize=8)
