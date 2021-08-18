@@ -45,3 +45,4 @@ axs[2].tick_params(axis='x', labelsize=8)
 axs[2].tick_params(axis='y', labelsize=8)
 
 fig.savefig('distance_stochastic.pdf', dpi=600, bbox_inches='tight')
+fig.savefig('distance_stochastic.eps', dpi=600, bbox_inches='tight')

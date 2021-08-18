@@ -120,3 +120,4 @@ tmp_ax.tick_params(axis='y', labelsize=8)
 tmp_ax.set_ylim([0., 25.])
 
 plt.savefig('distance.pdf', dpi=600)
+plt.savefig('distance.eps', dpi=600)

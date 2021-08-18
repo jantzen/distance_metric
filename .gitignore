@@ -134,3 +134,4 @@ dmypy.json
 # jantzen's additions
 /data
 *.pdf
+*.eps

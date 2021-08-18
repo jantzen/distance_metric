@@ -131,3 +131,4 @@ else:
         plt.axvline(x=x, color='r', linestyle='--')
 
 plt.savefig('change.pdf', dpi=600)
+plt.savefig('change.eps', dpi=600)
