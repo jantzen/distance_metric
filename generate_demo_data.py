@@ -54,18 +54,6 @@ t = np.array(t).reshape(1,-1)
 theta1 = np.concatenate(x, axis=1)
 theta1 = np.concatenate([t, theta1], axis=0)
 
-## trans
-#r = ode(model).set_integrator('lsoda')
-#r.set_initial_value(theta1, t0).set_f_params([K1, omega])
-#x = []
-#t = []
-#while r.successful() and r.t < t1:
-#    t.append(r.t)
-#    tmp = r.integrate(r.t+dt)
-#    x.append(np.array([np.cos(tmp), np.sin(tmp)]).reshape(-1,1))
-#
-#theta1_trans = np.concatenate(x, axis=1)
-
 # solve ODE_B at each timestep
 r = ode(model).set_integrator('lsoda')
 r.set_initial_value(theta0, t0).set_f_params([K2, omega])
@@ -79,18 +67,6 @@ while r.successful() and r.t < t1:
 t = np.array(t).reshape(1,-1)
 theta2 = np.concatenate(x, axis=1)
 theta2 = np.concatenate([t, theta2], axis=0)
-
-## trans
-#r = ode(model).set_integrator('lsoda')
-#r.set_initial_value(theta1, t0).set_f_params([K2, omega])
-#x = []
-#t = []
-#while r.successful() and r.t < t1:
-#    t.append(r.t)
-#    tmp = r.integrate(r.t+dt)
-#    x.append(np.array([np.cos(tmp), np.sin(tmp)]).reshape(-1,1))
-#
-#theta2_trans = np.concatenate(x, axis=1)
 
 # solve ODE_C at each timestep
 r = ode(model).set_integrator('lsoda')
@@ -110,89 +86,6 @@ theta3 = np.concatenate([t, theta3], axis=0)
 np.savetxt('./data/demo_theta1', theta1)
 np.savetxt('./data/demo_theta2', theta2)
 np.savetxt('./data/demo_theta3', theta3)
-
-## trans
-#r = ode(model).set_integrator('lsoda')
-#r.set_initial_value(theta1, t0).set_f_params([K1, omega * 2.])
-#x = []
-#t = []
-#while r.successful() and r.t < t1:
-#    t.append(r.t)
-#    tmp = r.integrate(r.t+dt)
-#    x.append(np.array([np.cos(tmp), np.sin(tmp)]).reshape(-1,1))
-#
-#theta3_trans = np.concatenate(x, axis=1)
-
-
-#c = 0.2
-
-#theta1_untrans += c * np.random.random_sample(theta1_untrans.shape)
-#theta1_trans += c * np.random.random_sample(theta1_trans.shape)
-#theta2_untrans += c * np.random.random_sample(theta2_untrans.shape)
-#theta2_trans += c * np.random.random_sample(theta2_trans.shape)
-#theta3_untrans += c * np.random.random_sample(theta3_untrans.shape)
-#theta3_trans += c * np.random.random_sample(theta3_trans.shape)
-
-## plot results
-#fig, ax = plt.subplots(3, 2, sharex = 'col')
-#for ii in range(2 * N):
-#    ax[0][0].plot(t, theta1_untrans[ii,:], 'b-')
-#ax[0][0].set_ylabel('System 1')
-#ax[0][0].set_title('Initial Conditions 1')
-#for ii in range(2 * N):
-#    ax[0][1].plot(t, theta1_trans[ii,:], 'r-')
-#ax[0][1].set_title('Initial Conditions 2')
-#for ii in range(2 * N):
-#    ax[1][0].plot(t, theta2_untrans[ii,:], 'b-')
-#ax[1][0].set_ylabel('System 2')
-#for ii in range(2 * N):
-#    ax[1][1].plot(t, theta2_trans[ii,:], 'r-')
-#for ii in range(2 * N):
-#    ax[2][0].plot(t, theta3_untrans[ii,:], 'b-')
-#ax[2][0].set_ylabel('System 3')
-#for ii in range(2 * N):
-#    ax[2][1].plot(t, theta3_trans[ii,:], 'r-')
-#ax[2][0].set_xlabel('time')
-#ax[2][1].set_xlabel('time')
-
-## plot results
-#fig, ax = plt.subplots(3, 1, sharex = 'col')
-#for ii in range(2 * N):
-#    ax[0].plot(t, theta1[ii,:], 'b-')
-#ax[0].set_ylabel('System 1')
-##ax[0][0].set_title('Initial Conditions 1')
-##for ii in range(2 * N):
-##    ax[0][1].plot(t, theta1_trans[ii,:], 'r-')
-##ax[0][1].set_title('Initial Conditions 2')
-#for ii in range(2 * N):
-#    ax[1].plot(t, theta2[ii,:], 'b-')
-#ax[1].set_ylabel('System 2')
-##for ii in range(2 * N):
-##    ax[1][1].plot(t, theta2_trans[ii,:], 'r-')
-#for ii in range(2 * N):
-#    ax[2].plot(t, theta3[ii,:], 'b-')
-#ax[2].set_ylabel('System 3')
-#for ii in range(2 * N):
-#    ax[2][1].plot(t, theta3_trans[ii,:], 'r-')
-#ax[2][0].set_xlabel('time')
-#ax[2][1].set_xlabel('time')
-
-
-#untrans = [[theta1_untrans], [theta2_untrans], [theta3_untrans]]
-#trans = [[theta1_trans], [theta2_untrans], [theta3_trans]]
-
-#dmat = eu.dynamical_distance.distance_matrix(untrans, trans, 10, 100)
-#x1 = np.concatenate([theta1_untrans, theta1_trans], axis=0).T
-#x2 = np.concatenate([theta2_untrans, theta2_trans], axis=0).T
-#x3 = np.concatenate([theta3_untrans, theta3_trans], axis=0).T
-#
-#d12 = EnergyDistance(x1, x2)
-#d13 = EnergyDistance(x1, x3)
-#d23 = EnergyDistance(x2, x3)
-
-# print([d12, d13, d23])
-#print("D_D matrix:")
-#print(dmat) 
 
 split_data = split_timeseries([theta1, theta2, theta3], 10**4)
 untrans, trans = choose_untrans_trans(split_data, 3)
@@ -224,6 +117,4 @@ for ii, xx in enumerate([theta1, theta2, theta3]):
 print(dtw_d)
 print("DTW matrix:")
 np.savetxt('./data/demo_dtw', dtw_d)
-
-#plt.show()
 
