@@ -136,3 +136,4 @@ dmypy.json
 *.pdf
 *.eps
 /scrap
+/data_for_distribution
