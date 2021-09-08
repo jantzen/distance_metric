@@ -48,8 +48,8 @@ def plot_initials(data1, data2, frags, reps):
     axs[1].set_ylim(-size, size)
     axs[1].set_xticks([])
     axs[1].set_yticks([])
-    axs[1].set_xlabel(r'$x_1$')
-    axs[1].set_ylabel(r'$x_2$')
+    axs[1].set_xlabel(r'$x_1$', loc = "right")
+    axs[1].set_ylabel(r'$x_2$', loc = "top")
      
 #    axs[2].plot(data2[0, :4000], 'k-', label=r'$x_1^B$')
 #    axs[2].plot(data2[1, :4000], 'k-.', label=r'$x_2^B$')

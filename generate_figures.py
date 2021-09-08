@@ -6,7 +6,7 @@ import numpy as np
 #Figure 1
 fig, axs = plt.subplots(4, 2, figsize=(6, 7))
 #plt.subplots_adjust(wspace=0.1,hspace=0.4,bottom=0.3)
-fig.tight_layout(rect=[0.05, 0.05, 0.95, 0.95], h_pad=3., w_pad=2.7)
+fig.tight_layout(rect=[0.05, 0.05, 0.95, 0.95], h_pad=4., w_pad=2.7)
 
 # (a) Difference in dynamical kind
 data = np.loadtxt('./data/test_same_more_diff')
@@ -30,6 +30,9 @@ axs[0,1].set_title('(b)', weight='bold', fontsize=10, loc='center')
 axs[0,1].tick_params(axis='x', labelsize=8)
 axs[0,1].tick_params(axis='y', labelsize=8)
 
+plt.text(0.958, 1.51, 'Similarity of Dynamical Kind',
+    horizontalalignment='center', verticalalignment='center')
+
 # (c) Same carrying capacity, more linear
 data = np.loadtxt('./data/test_same_cap_more_linear')
 axs[1,0].plot(data[:,0], data[:,1], 'kx')
@@ -47,6 +50,9 @@ axs[1,1].set_ylabel(r'$D_D$', fontsize=8)
 axs[1,1].set_title('(d)', weight='bold', fontsize=10, loc='center')
 axs[1,1].tick_params(axis='x', labelsize=8)
 axs[1,1].tick_params(axis='y', labelsize=8)
+
+plt.text(0.958, 1.10, 'Degree of Nonlinearity',
+    horizontalalignment='center', verticalalignment='center')
 
 # (e) Same carrying capacity, more 2nd order
 data = np.loadtxt('./data/test_same_cap_more_2nd_order')
@@ -66,25 +72,19 @@ axs[2,1].set_title('(f)', weight='bold', fontsize=10, loc='center')
 axs[2,1].tick_params(axis='x', labelsize=8)
 axs[2,1].tick_params(axis='y', labelsize=8)
 
+plt.text(0.958, 0.68, 'Difference in Effective Order',
+    horizontalalignment='center', verticalalignment='center')
+
 # (g) Chaos
 data1 = np.loadtxt('./data/test_into_chaos_1')
 data2 = np.loadtxt('./data/test_into_chaos_2')
 data3 = np.loadtxt('./data/test_into_chaos_3')
 l2data = np.loadtxt('./data/test_into_chaos_l2')
-#axs[3,0].plot(data1[:,0], data1[:,1], 'kx', 
-#        label='chaotic vs chaotic')
-#axs[3,0].plot(data2[:,0], data2[:,1], 'k+',
-#        label='non-chaotic vs non-chaotic')
-#axs[3,0].plot(data3[:,0], data3[:,1], 'kX',
-#        label='chaotic vs non-chaotic')
 lns1 = axs[3,0].plot(data3[:,0], data3[:,1], 'k+',
         label=r'$D_D$')
 tmp_ax = axs[3,0].twinx()
 lns2 = tmp_ax.plot(l2data[:,0], l2data[:,1], 'k.',
         label='l2 norm')
-#axs[3,0].legend(fontsize=7, bbox_to_anchor=(1.17, -0.45), ncol=3, loc="upper center")
-#axs[3,0].legend(fontsize=7, bbox_to_anchor=(0.5, 0.5))
-#tmp_ax.legend(fontsize=7, bbox_to_anchor=(0.5, 0.4))
 lns = lns1 + lns2
 labs = [l.get_label() for l in lns]
 axs[3,0].legend(lns, labs, loc=3, fontsize=7)
@@ -118,6 +118,10 @@ axs[3,1].tick_params(axis='x', labelsize=8)
 axs[3,1].tick_params(axis='y', labelsize=8)
 tmp_ax.tick_params(axis='y', labelsize=8)
 tmp_ax.set_ylim([0., 25.])
+
+plt.sca(axs[3,1])
+plt.text(0.958, 0.27, 'Sensitivity to Chaos',
+    horizontalalignment='center', verticalalignment='center')
 
 plt.savefig('distance.pdf', dpi=600)
 plt.savefig('distance.eps', dpi=600)
